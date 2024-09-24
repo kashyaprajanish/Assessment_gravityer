@@ -1,0 +1,52 @@
+//longest increasing subsequence
+function lengthOfLIS(arr) {
+    if (arr.length === 0) return 0;
+    
+    const dp = new Array(arr.length).fill(1);
+
+    for (let i = 1; i < arr.length; i++) {
+        for (let j = 0; j < i; j++) {
+            // console.log(arr[i] , arr[j])
+
+            if (arr[i] > arr[j]) {
+                // console.log("here",dp[i], dp[j])
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+                console.log(dp)
+            }
+        }
+    }
+    console.log(dp)
+    return Math.max(...dp);
+}
+
+
+db.collection.aggregate([
+  {
+    $unwind: "$items"
+  },
+  {
+    $addFields: {
+      month: { $dateToString: { format: "%Y-%m", date: "$date" } },
+      totalItemPrice: { $multiply: ["$items.quantity", "$items.price"] }
+    }
+  },
+  {
+    $group: {
+      _id: { store: "$store", month: "$month" },
+      totalRevenue: { $sum: "$totalItemPrice" },
+      averagePrice: { $avg: "$items.price" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      store: "$_id.store",
+      month: "$_id.month",
+      totalRevenue: 1,
+      averagePrice: 1
+    }
+  },
+  {
+    $sort: { store: 1, month: 1 }
+  }
+])
